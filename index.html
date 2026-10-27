@@ -686,6 +686,8 @@ const CHAR = {
     skinC:      'assets/kenney/kenney_animated-characters-survivors/Skins/zombieC.png',
     skinMale:   'assets/kenney/kenney_animated-characters-retro/Skins/zombieMaleA.png',
     skinFemale: 'assets/kenney/kenney_animated-characters-retro/Skins/zombieFemaleA.png',
+    survivorMale: 'assets/kenney/kenney_animated-characters-survivors/Skins/survivorMaleB.png',
+    survivorAlt:  'assets/kenney/kenney_animated-characters-survivors/Skins/survivorMaleB_alt.png',
   },
 };
 const fbxLoader = new FBXLoader();
@@ -718,7 +720,8 @@ function loadCharacterAssets(){
     loadFBX(F.model), loadFBX(F.idle), loadFBX(F.run),
     loadCharTexture(F.skinA), loadCharTexture(F.skinC),
     loadCharTexture(F.skinMale), loadCharTexture(F.skinFemale),
-  ]).then(([model, idle, run, skinA, skinC, skinMale, skinFemale])=>{
+    loadCharTexture(F.survivorMale), loadCharTexture(F.survivorAlt),
+  ]).then(([model, idle, run, skinA, skinC, skinMale, skinFemale, survivorMale, survivorAlt])=>{
     if(!model || !model.children.length){
       CHAR.failed.push('personajes');
       return;
@@ -728,6 +731,7 @@ function loadCharacterAssets(){
     CHAR.clips.run  = pickAnimClip(run, 'run');
     CHAR.skins.A = skinA; CHAR.skins.C = skinC;
     CHAR.skins.male = skinMale; CHAR.skins.female = skinFemale;
+    CHAR.skins.survivorMale = survivorMale; CHAR.skins.survivorAlt = survivorAlt;
     if(!CHAR.clips.idle && !CHAR.clips.run){
       CHAR.failed.push('animaciones');
       CHAR.template = null;
@@ -2658,7 +2662,9 @@ function makeRemoteAvatar(id, name){
     holder.add(inner);
     root.add(holder);
     const tint = id === online.hostId ? 0x9ac8ff : 0xffc78a;
-    const skin = id === online.hostId ? (CHAR.skins.male || CHAR.skins.A) : (CHAR.skins.female || CHAR.skins.C);
+    const skin = id === online.hostId
+      ? (CHAR.skins.survivorMale || CHAR.skins.male || CHAR.skins.A)
+      : (CHAR.skins.survivorAlt || CHAR.skins.male || CHAR.skins.C);
     inner.traverse(o => {
       if(!o.isMesh) return;
       o.castShadow = true; o.receiveShadow = true;
