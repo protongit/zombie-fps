@@ -1,20 +1,22 @@
-FROM nginx:1.27-alpine
+FROM node:22-alpine
 
-# Compatible con plataformas que ejecutan con UID aleatorio no-root (OpenShift/Knative):
-# pid y cachés en rutas escribibles, sin privilegios.
-RUN sed -i 's|/var/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf \
- && mkdir -p /var/cache/nginx /var/run \
- && chmod -R a+rwX /var/cache/nginx /var/run /var/log/nginx /tmp /etc/nginx
+WORKDIR /app
+ENV NODE_ENV=production
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-COPY index.html /usr/share/nginx/html/index.html
-COPY assets /usr/share/nginx/html/assets
-COPY lib /usr/share/nginx/html/lib
+COPY server.mjs ./
+COPY index.html ./
+COPY js ./js
+COPY assets ./assets
+COPY lib ./lib
 
 EXPOSE 8123
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -q --spider http://127.0.0.1:8123/ || exit 1
+  CMD node -e "fetch('http://127.0.0.1:8123/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["nginx", "-g", "daemon off;"]
+USER node
+
+CMD ["node", "server.mjs"]

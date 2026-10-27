@@ -8,28 +8,38 @@ Dos formas de jugar: **Modo Historia** (con capítulos, radio, checkpoints y ep�
 y **Supervivencia** (arcade puro), ambas con **4 niveles de dificultad** y una **ciudad
 abierta** con avenidas, calles laterales y transversales para moverse con libertad.
 
-Hecho con **Three.js**. La lógica del juego vive en un único `index.html`
-(HTML + CSS + JS embebidos), con arte low-poly procedural y **assets CC0 de
+Además, Supervivencia incluye **co-op online para 2 jugadores**: sala privada por
+código o enlace, zombis y jefe compartidos, botín individual y reaparición.
+
+Hecho con **Three.js**. La lógica del juego vive en `index.html` (HTML + CSS + JS
+embebidos), con arte low-poly procedural y **assets CC0 de
 [Kenney](https://kenney.nl)**: muebles, cofres, cajas y barriles en `assets/kenney/`.
 Los zombis usan los **personajes animados** de Kenney (`Animated Characters
 Survivors` y `Retro`) con sus skins, animaciones de reposo/carrera y variantes
 por tipo. Three.js, los cargadores GLTF/FBX y las utilidades de esqueletos se
-incluyen localmente en `lib/`, por lo que **funciona sin conexión**.
+incluyen localmente en `lib/`, por lo que el juego **funciona sin conexión** en
+los modos individuales. El co-op necesita el servidor Node incluido.
 
 ## Ejecutar
 
-Necesita servirse por HTTP (usa módulos ES). Desde esta carpeta:
+Necesita Node.js 20 o superior. El servidor sirve los archivos estáticos y el
+WebSocket del co-op:
 
 ```bash
-python3 -m http.server 8123
-# o: npx serve -l 8123
+npm install
+npm start
 ```
 
-Abre <http://localhost:8123/index.html>. También hay `run.sh`:
+Abre <http://localhost:8123/>. También hay `run.sh`, que instala dependencias si
+hacen falta:
 
 ```bash
 ./run.sh
+PORT=3000 ./run.sh
 ```
+
+Para los modos individuales también sirve cualquier servidor HTTP estático, pero
+el botón de co-op online requiere `server.mjs`.
 
 ### Docker
 
@@ -57,6 +67,32 @@ También puedes construir y ejecutar la imagen directamente:
 docker build --load -t calle-muerta .
 docker run -d --name calle-muerta -p 8123:8123 calle-muerta
 ```
+
+La imagen usa Node, sirve el juego y el WebSocket en el mismo puerto **8123**,
+funciona con usuario sin privilegios y expone `/healthz` para el healthcheck.
+
+## Multijugador online
+
+1. Pulsa **Co-op online · 2 jugadores** en el menú.
+2. El host crea una sala y comparte el código o el enlace.
+3. El invitado introduce el código, marca **Estoy listo** y el host inicia.
+4. Ambos deben pulsar **Entrar** para comenzar a la vez.
+
+- Solo **Supervivencia**, 2 jugadores y sin fuego amigo.
+- El host simula zombis, jefe, focos y oleadas; el invitado recibe snapshots.
+- Cada jugador gestiona su movimiento, armas, munición, inventario y botín.
+- Al morir se reaparece a los 5 s junto al compañero vivo, con 2 s de protección.
+- Si caen los dos, termina la partida.
+- El servidor mantiene las salas en memoria: si se reinicia, las salas se cierran.
+
+## Pruebas
+
+```bash
+npm test
+```
+
+Comprueba el flujo de salas, aforo, listos, inicio y retransmisión de mensajes del
+servidor WebSocket.
 
 ## Controles
 

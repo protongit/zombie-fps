@@ -1,0 +1,17 @@
+{
+  "name": "calle-muerta",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Calle Muerta: FPS 3D cooperativo para navegador",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
