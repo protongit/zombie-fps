@@ -55,7 +55,7 @@ También puedes construir y ejecutar la imagen directamente:
 
 ```bash
 docker build --load -t calle-muerta .
-docker run -d --name calle-muerta -p 8123:80 calle-muerta
+docker run -d --name calle-muerta -p 8123:8123 calle-muerta
 ```
 
 ## Controles

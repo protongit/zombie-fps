@@ -4,10 +4,10 @@ services:
     image: calle-muerta:latest
     container_name: calle-muerta
     ports:
-      - "${PORT:-8123}:80"
+      - "${PORT:-8123}:8123"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8123/"]
       interval: 30s
       timeout: 3s
       start_period: 5s
